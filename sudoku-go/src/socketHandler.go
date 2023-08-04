@@ -1,8 +1,10 @@
 package src
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,13 +17,24 @@ func NewSocketHandler(log *log.Logger) *socketHandler {
 	return &socketHandler{log: log}
 }
 
-func reader() {}
-
-func writer(conn *websocket.Conn) {
+func reader(conn *websocket.Conn) {
 	for {
-		err := conn.WriteMessage(1, []byte("hello"))
+		msgType, buf, err := conn.ReadMessage()
 		if err != nil {
-			panic("Panic!")
+			conn.Close()
+			panic("Error when reading")
+		}
+		fmt.Println(msgType, buf)
+	}
+}
+
+func writer(conn *websocket.Conn, ch <-chan Square) {
+	for {
+		sq := <-ch
+		msg := fmt.Sprint(strconv.Itoa(sq.row), strconv.Itoa(sq.col), strconv.Itoa(int(sq.val)))
+		err := conn.WriteMessage(1, []byte(msg))
+		if err != nil {
+			log.Fatal("Exit")
 		}
 	}
 }
@@ -32,10 +45,12 @@ func (sh *socketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Panicln("Websocket handshake failed")
 	}
 
+	ch := make(chan Square, 100)
+
 	// Initialize & solve puzzle
 	board := InitBoard()
 	game := NewGame(board)
-	game.Solve(BruteForce)
-
-	go writer(conn)
+	go game.Solve(BruteForce, ch)
+	go reader(conn)
+	go writer(conn, ch)
 }

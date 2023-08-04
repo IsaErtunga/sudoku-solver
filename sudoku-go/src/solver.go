@@ -52,7 +52,7 @@ func increment(i, j int) (int, int) {
 	return i, j + 1
 }
 
-func BruteForce(board *[9][9]uint8) error {
+func BruteForce(board *[9][9]uint8, ch chan<- Square) error {
 	i := 0
 	j := 0
 	inserted := make(stack, 0)
@@ -63,7 +63,9 @@ func BruteForce(board *[9][9]uint8) error {
 			for val < 10 {
 				if isValid(board, i, j, val) {
 					board[i][j] = val
-					inserted = inserted.Push(Coord{row: i, col: j})
+					insertedSq := Square{row: i, col: j, val: val}
+					inserted = inserted.Push(insertedSq)
+					ch <- insertedSq
 					val = 1
 					break
 				}
@@ -71,15 +73,15 @@ func BruteForce(board *[9][9]uint8) error {
 				// Backtrack
 				for val == 9 {
 					board[i][j] = 0
-					var prevCoords Coord
+					var prevSquare Square
 					var err error
-					inserted, prevCoords, err = inserted.Pop()
+					inserted, prevSquare, err = inserted.Pop()
 					if err != nil {
 						return NoSolutionError
 					}
 
-					i = prevCoords.row
-					j = prevCoords.col
+					i = prevSquare.row
+					j = prevSquare.col
 					val = board[i][j]
 				}
 

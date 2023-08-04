@@ -127,7 +127,8 @@ var testCases = []validateBoardTest{
 func TestBruteForce(t *testing.T) {
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
-			err := BruteForce(&test.input)
+			ch := make(chan<- Square)
+			err := BruteForce(&test.input, ch)
 			if !errors.Is(err, test.want) {
 				t.Errorf("Test: %s: got %q, wanted %q", test.name, err, test.want)
 			}

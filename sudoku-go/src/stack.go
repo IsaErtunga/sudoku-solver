@@ -2,21 +2,28 @@ package src
 
 import "errors"
 
-type Coord struct {
+type Square struct {
 	row int
 	col int
+	val uint8
 }
 
-type stack []Coord
+type stack []Square
 
-func (s stack) Push(pos Coord) stack {
-	return append(s, pos)
+func (s stack) Push(sq Square) stack {
+	return append(s, sq)
 }
 
-func (s stack) Pop() (stack, Coord, error) {
+func (s stack) Pop() (stack, Square, error) {
 	length := len(s)
 	if length == 0 {
-		return s, Coord{row: -1, col: -1}, errors.New("Empty stack")
+		return s,
+			Square{
+				row: -1,
+				col: -1,
+				val: uint8(0),
+			},
+			errors.New("Empty stack")
 	}
 	return s[:length-1], s[length-1], nil
 }
