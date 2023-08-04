@@ -1,6 +1,8 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Game struct {
 	Board [9][9]uint8
@@ -20,13 +22,13 @@ func InitBoard() [9][9]uint8 {
 	}
 }
 
-func NewGame() *Game {
+func NewGame(board [9][9]uint8) *Game {
 	return &Game{
-		Board: InitBoard(),
+		Board: board,
 	}
 }
 
-func (g *Game) Solve(solver func(*[9][9]uint8)) {
+func (g *Game) Solve(solver func(*[9][9]uint8) error) {
 	defer Time("Solver")
 	solver(&g.Board)
 }

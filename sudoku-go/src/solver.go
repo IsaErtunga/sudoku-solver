@@ -1,17 +1,23 @@
 package src
 
-func isRowValid(board *[9][9]uint8, row int, val uint8) bool {
+import (
+	"errors"
+)
+
+var NoSolutionError error = errors.New("No solution")
+
+func isRowValid(board *[9][9]uint8, row, col int, val uint8) bool {
 	for i := range board[row] {
-		if board[row][i] == val {
+		if board[row][i] == val && i != col {
 			return false
 		}
 	}
 	return true
 }
 
-func isColValid(board *[9][9]uint8, col int, val uint8) bool {
+func isColValid(board *[9][9]uint8, row, col int, val uint8) bool {
 	for i := 0; i < len(*board); i++ {
-		if board[i][col] == val {
+		if board[i][col] == val && i != row {
 			return false
 		}
 	}
@@ -24,17 +30,16 @@ func isNinthValid(board *[9][9]uint8, row, col int, val uint8) bool {
 
 	for i := rowStart; i < rowStart+3; i++ {
 		for j := colStart; j < colStart+3; j++ {
-			if board[i][j] == val {
+			if board[i][j] == val && i != row && j != col {
 				return false
 			}
 		}
 	}
-
 	return true
 }
 
 func isValid(board *[9][9]uint8, row, col int, val uint8) bool {
-	if !isRowValid(board, row, val) || !isColValid(board, col, val) || !isNinthValid(board, row, col, val) {
+	if !isRowValid(board, row, col, val) || !isColValid(board, row, col, val) || !isNinthValid(board, row, col, val) {
 		return false
 	}
 	return true
@@ -47,23 +52,18 @@ func increment(i, j int) (int, int) {
 	return i, j + 1
 }
 
-func decrement(i, j int) (int, int) {
-	if j == 0 {
-		return i - 1, 8
-	}
-	return i, j - 1
-}
-
-func BruteForce(board *[9][9]uint8) {
+func BruteForce(board *[9][9]uint8) error {
 	i := 0
 	j := 0
-	val := uint8(1)
+	inserted := make(stack, 0)
+	var val uint8
 
 	for i < 9 && j < 9 {
 		if board[i][j] == 0 {
 			for val < 10 {
 				if isValid(board, i, j, val) {
 					board[i][j] = val
+					inserted = inserted.Push(Coord{row: i, col: j})
 					val = 1
 					break
 				}
@@ -71,13 +71,27 @@ func BruteForce(board *[9][9]uint8) {
 				// Backtrack
 				for val == 9 {
 					board[i][j] = 0
-					i, j = decrement(i, j)
+					var prevCoords Coord
+					var err error
+					inserted, prevCoords, err = inserted.Pop()
+					if err != nil {
+						return NoSolutionError
+					}
+
+					i = prevCoords.row
+					j = prevCoords.col
 					val = board[i][j]
 				}
 
 				val++
 			}
+		} else {
+			if !isValid(board, i, j, board[i][j]) {
+				return NoSolutionError
+			}
 		}
 		i, j = increment(i, j)
 	}
+
+	return nil
 }
