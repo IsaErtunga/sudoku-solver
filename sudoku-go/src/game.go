@@ -31,7 +31,6 @@ func NewGame(board [9][9]uint8) *Game {
 func (g *Game) Solve(solver func(board *[9][9]uint8, ch chan<- Square) error, ch chan<- Square) {
 	defer Time("Solver")
 	solver(&g.Board, ch)
-	g.PrintBoard()
 }
 
 func (g *Game) PrintBoard() {

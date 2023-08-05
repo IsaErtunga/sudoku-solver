@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -71,7 +72,6 @@ func (sh *socketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					// Initialize & solve puzzle
 					game := NewGame(board)
 					game.Solve(BruteForce, ch)
-					game.PrintBoard()
 				}
 			}
 		}
@@ -82,10 +82,16 @@ func (sh *socketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Sends to client
 	go func() {
 		for {
-			square := <-ch
-			err := conn.WriteMessage(1, []byte(fmt.Sprintf("%d:%d:%d", square.row, square.col, square.val)))
-			if err != nil {
+			select {
+			case <-quit:
 				return
+			default:
+				square := <-ch
+				time.Sleep(100 * time.Millisecond)
+				err := conn.WriteMessage(1, []byte(fmt.Sprintf("%d:%d:%d", square.col, square.row, square.val)))
+				if err != nil {
+					return
+				}
 			}
 		}
 	}()

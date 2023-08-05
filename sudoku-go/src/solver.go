@@ -80,7 +80,7 @@ func BruteForce(board *[9][9]uint8, ch chan<- Square) error {
 						return NoSolutionError
 					}
 
-					// ch <- Square{row: i, col: j, val: 0}
+					ch <- Square{row: i, col: j, val: 0}
 					i = prevSquare.row
 					j = prevSquare.col
 					val = board[i][j]
