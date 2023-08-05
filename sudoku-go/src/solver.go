@@ -65,8 +65,8 @@ func BruteForce(board *[9][9]uint8, ch chan<- Square) error {
 					board[i][j] = val
 					insertedSq := Square{row: i, col: j, val: val}
 					inserted = inserted.Push(insertedSq)
-					ch <- insertedSq
 					val = 1
+					ch <- insertedSq
 					break
 				}
 
@@ -80,6 +80,7 @@ func BruteForce(board *[9][9]uint8, ch chan<- Square) error {
 						return NoSolutionError
 					}
 
+					// ch <- Square{row: i, col: j, val: 0}
 					i = prevSquare.row
 					j = prevSquare.col
 					val = board[i][j]
@@ -92,6 +93,7 @@ func BruteForce(board *[9][9]uint8, ch chan<- Square) error {
 				return NoSolutionError
 			}
 		}
+
 		i, j = increment(i, j)
 	}
 

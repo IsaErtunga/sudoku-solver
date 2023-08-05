@@ -3,6 +3,7 @@ package src
 import (
 	"errors"
 	"testing"
+	"time"
 )
 
 type validateBoardTest struct {
@@ -122,16 +123,47 @@ var testCases = []validateBoardTest{
 		},
 		want: nil,
 	},
+	{
+		name: "Valid - Client",
+		input: [9][9]uint8{
+			{6, 0, 5, 7, 2, 0, 0, 3, 9},
+			{4, 0, 0, 0, 0, 5, 1, 0, 0},
+			{0, 2, 0, 1, 0, 0, 0, 0, 4},
+			{0, 9, 0, 0, 3, 0, 7, 0, 6},
+			{1, 0, 0, 8, 0, 9, 0, 0, 5},
+			{2, 0, 4, 0, 5, 0, 0, 8, 0},
+			{8, 0, 0, 0, 0, 3, 0, 2, 0},
+			{0, 0, 2, 9, 0, 0, 0, 0, 1},
+			{3, 5, 0, 0, 6, 7, 4, 0, 8},
+		},
+		want: nil,
+	},
 }
 
 func TestBruteForce(t *testing.T) {
+	quit := make(chan bool)
+	ch := make(chan Square)
+	go func() {
+		for {
+			select {
+			case <-quit:
+				return
+			default:
+				reader := <-ch
+				_ = reader
+			}
+		}
+	}()
+	time.Sleep(500 * time.Millisecond)
+
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
-			ch := make(chan<- Square)
 			err := BruteForce(&test.input, ch)
 			if !errors.Is(err, test.want) {
 				t.Errorf("Test: %s: got %q, wanted %q", test.name, err, test.want)
 			}
 		})
 	}
+
+	quit <- true
 }

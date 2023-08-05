@@ -8,7 +8,7 @@ import (
 )
 
 var serviceName string = "sudoku-live"
-var bindAdress string = ":9090"
+var bindAdress string = ":1337"
 
 func main() {
 	log := log.New(os.Stdout, serviceName, log.LstdFlags)

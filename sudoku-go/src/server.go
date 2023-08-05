@@ -7,15 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
-
-// Parameterize if needed
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
 
 type server struct {
 	log     *log.Logger
