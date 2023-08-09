@@ -1,6 +1,6 @@
-# Sudoku solver 🦀
+# Sudoku solver in Go
 
-Simple sudoku solver written in Rust. Implemented with backtracking algorithm for learning purposes.
+Simple sudoku solver written in Go communicating to client via websockets.
+Implemented with backtracking algorithm for learning purposes.
 
-Forked:
-Added implementation in GO
+Forked SolidJS client
